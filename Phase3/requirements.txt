@@ -1,0 +1,10 @@
+browser-use
+anthropic
+python-dotenv
+playwright
+fastapi
+uvicorn
+pydantic
+pytest
+pytest-asyncio
+aiofiles

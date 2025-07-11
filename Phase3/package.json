@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.2.0",
+    "@mui/material": "^7.2.0",
+    "@mui/x-data-grid": "^8.7.0",
+    "@types/react-router-dom": "^5.3.3",
+    "axios": "^1.10.0",
+    "date-fns": "^4.1.0",
+    "react-hot-toast": "^2.5.2",
+    "react-router-dom": "^7.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.10"
+  }
+}

@@ -1,0 +1,25 @@
+{
+    "browser": {
+      "browserName": "chromium",
+      "isolated": false,
+      "launchOptions": {
+        "headless": false,
+        "channel": "chrome"
+      },
+      "contextOptions": {
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        }
+      }
+    },
+    "mcpServers": {
+      "playwright": {
+        "command": "npx",
+        "args": ["@playwright/mcp@latest"],
+        "env": {
+          "PLAYWRIGHT_BROWSERS_PATH": "0"
+        }
+      }
+    }
+  }
