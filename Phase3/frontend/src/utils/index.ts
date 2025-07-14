@@ -19,18 +19,29 @@ export const isValidUrl = (url: string): boolean => {
 };
 
 export const formatDate = (date: Date): string => {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const minutes = Math.floor(diff / (1000 * 60));
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  try {
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    
+    // Handle invalid dates or future dates
+    if (diff < 0 || isNaN(diff)) {
+      return date.toLocaleString();
+    }
+    
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
-  
-  return date.toLocaleDateString();
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    
+    return date.toLocaleDateString();
+  } catch (error) {
+    // Fallback to simple date string
+    return date.toLocaleString();
+  }
 };
 
 export const formatStatus = (status: string) => {

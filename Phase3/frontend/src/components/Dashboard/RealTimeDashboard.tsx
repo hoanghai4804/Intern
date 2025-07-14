@@ -40,11 +40,13 @@ import {
   Visibility,
   Language,
   PhoneAndroid,
-  Computer
+  Computer,
+  OpenInNew
 } from '@mui/icons-material';
 import { advancedAgentService, TaskStatus, AgentMetrics } from '../../services';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { formatDate, formatDuration, formatStatus } from '../../utils';
+import { useNavigate } from 'react-router-dom';
 
 const RealTimeDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<AgentMetrics | null>(null);
@@ -52,6 +54,7 @@ const RealTimeDashboard: React.FC = () => {
   const [recentTasks, setRecentTasks] = useState<TaskStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const navigate = useNavigate();
 
   // WebSocket connection for real-time updates
   const webSocketUrl = `ws://localhost:8000/ws`;
@@ -87,7 +90,7 @@ const RealTimeDashboard: React.FC = () => {
       const [metricsData, activeTasksData, recentTasksData] = await Promise.all([
         advancedAgentService.getMetrics(),
         advancedAgentService.getActiveTasks(),
-        advancedAgentService.getCompletedTasks(10)
+        advancedAgentService.getCompletedTasks(1) // Chỉ lấy 1 task mới nhất
       ]);
 
       setMetrics(metricsData);
@@ -195,7 +198,7 @@ const RealTimeDashboard: React.FC = () => {
                   {metrics?.total_tasks || 0}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Total Tasks
+                  Total Tasks (All Time)
                 </Typography>
               </Box>
             </Box>
@@ -213,7 +216,7 @@ const RealTimeDashboard: React.FC = () => {
                   {metrics?.success_rate.toFixed(1) || 0}%
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Success Rate
+                  Success Rate (30 days)
                 </Typography>
               </Box>
             </Box>
@@ -231,7 +234,7 @@ const RealTimeDashboard: React.FC = () => {
                   {advancedAgentService.formatExecutionTime(metrics?.average_execution_time)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Avg Duration
+                  Avg Duration (30 days)
                 </Typography>
               </Box>
             </Box>
@@ -332,56 +335,90 @@ const RealTimeDashboard: React.FC = () => {
         {/* Recent Tasks */}
         <Card>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
-              📋 Recent Tasks
-            </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="h6">
+                📋 Latest Task
+              </Typography>
+              <Button
+                variant="outlined"
+                startIcon={<OpenInNew />}
+                onClick={() => navigate('/reports')}
+                size="small"
+              >
+                View All Tasks
+              </Button>
+            </Box>
             
             <TableContainer component={Paper} variant="outlined">
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Task</TableCell>
+                    <TableCell>Task ID</TableCell>
+                    <TableCell>Type</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell>Duration</TableCell>
                     <TableCell>Completed</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {recentTasks.slice(0, 8).map((task) => (
-                    <TableRow key={task.task_id}>
-                      <TableCell>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          {getTaskTypeIcon(task.task_id)}
-                          <Typography variant="body2" fontWeight="medium">
-                            {task.task_id.slice(-8)}
+                  {recentTasks.length > 0 ? (
+                    recentTasks.map((task) => (
+                      <TableRow key={task.task_id} hover>
+                        <TableCell>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            {getTaskTypeIcon(task.task_id)}
+                            <Typography variant="body2" fontWeight="medium">
+                              {task.task_id.slice(-8)}
+                            </Typography>
+                          </Box>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatDate(new Date(task.created_at))}
                           </Typography>
-                        </Box>
-                      </TableCell>
-                      
-                      <TableCell>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          {getStatusIcon(task.status)}
-                          <Chip 
-                            label={formatStatus(task.status).label}
-                            size="small"
-                            color={formatStatus(task.status).color as any}
-                          />
-                        </Box>
-                      </TableCell>
-                      
-                      <TableCell>
-                        <Typography variant="body2">
-                          {advancedAgentService.formatExecutionTime(task.execution_time)}
-                        </Typography>
-                      </TableCell>
-                      
-                      <TableCell>
-                        <Typography variant="caption" color="text.secondary">
-                          {task.completed_at ? new Date(task.completed_at).toLocaleTimeString() : '-'}
+                        </TableCell>
+                        
+                        <TableCell>
+                          <Typography variant="body2">
+                            {task.task_id.toLowerCase().includes('cross-browser') ? 'Cross-browser' :
+                             task.task_id.toLowerCase().includes('responsive') ? 'Responsive' :
+                             task.task_id.toLowerCase().includes('performance') ? 'Performance' :
+                             task.task_id.toLowerCase().includes('form') ? 'Form Test' : 'Web Test'}
+                          </Typography>
+                        </TableCell>
+                        
+                        <TableCell>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            {getStatusIcon(task.status)}
+                            <Chip 
+                              label={formatStatus(task.status).label}
+                              size="small"
+                              color={formatStatus(task.status).color as any}
+                            />
+                          </Box>
+                        </TableCell>
+                        
+                        <TableCell>
+                          <Typography variant="body2">
+                            {task.execution_time ? advancedAgentService.formatExecutionTime(task.execution_time) : 'N/A'}
+                          </Typography>
+                        </TableCell>
+                        
+                        <TableCell>
+                          <Typography variant="caption" color="text.secondary">
+                            {task.completed_at ? formatDate(new Date(task.completed_at)) : 
+                             task.started_at ? `Started: ${formatDate(new Date(task.started_at))}` : '-'}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        <Typography variant="body2" color="text.secondary">
+                          No recent tasks found
                         </Typography>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

@@ -12,6 +12,7 @@ from backend.agents.agent_manager import AgentManager, AgentType, TaskStatus
 from backend.scenarios.scenario_builder import ScenarioBuilder, TestScenario
 from backend.database.model import Database, TestResultRepository
 from backend.utils.config import Config
+from backend.automation.mcp_client import PlaywrightMCPClient
 
 # Pydantic models for API
 class TaskSubmission(BaseModel):
@@ -51,6 +52,13 @@ class AgentMetrics(BaseModel):
     success_rate: float
     average_execution_time: float
 
+class MCPServerStatus(BaseModel):
+    is_running: bool
+    port: int
+    process_id: Optional[int]
+    config_path: str
+    health_status: str
+
 # Initialize FastAPI app
 app = FastAPI(
     title="AI Agents Testing API",
@@ -71,6 +79,7 @@ app.add_middleware(
 agent_manager = AgentManager(max_concurrent_agents=3)
 database = Database()
 test_repo = TestResultRepository(database)
+mcp_client = PlaywrightMCPClient()
 
 # Dependency injection
 def get_agent_manager():
@@ -78,6 +87,9 @@ def get_agent_manager():
 
 def get_test_repository():
     return test_repo
+
+def get_mcp_client():
+    return mcp_client
 
 # API Routes
 
@@ -173,14 +185,14 @@ async def get_completed_tasks(
 ):
     """Get recently completed tasks"""
     
-    completed_tasks = manager.get_completed_tasks()
+    # If limit is very large (>1000), get all tasks from database
+    if limit > 1000:
+        completed_tasks = manager.get_all_completed_tasks_from_database()
+    else:
+        completed_tasks = manager.get_completed_tasks()
     
-    # Sort by completion time and limit
-    sorted_tasks = sorted(
-        completed_tasks, 
-        key=lambda x: x.completed_at or datetime.min,
-        reverse=True
-    )[:limit]
+    # Tasks are already sorted by AgentManager, just limit them
+    limited_tasks = completed_tasks[:limit]
     
     return [
         TaskStatus(
@@ -191,10 +203,9 @@ async def get_completed_tasks(
             completed_at=task.completed_at,
             result=task.result,
             error=task.error,
-            execution_time=(task.completed_at - task.started_at).total_seconds() 
-                           if task.started_at and task.completed_at else None
+            execution_time=task.execution_time
         )
-        for task in sorted_tasks
+        for task in limited_tasks
     ]
 
 @app.delete("/api/tasks/{task_id}")
@@ -346,6 +357,9 @@ async def get_recent_executions(
 async def health_check():
     """Health check endpoint"""
     
+    # Check MCP server health
+    mcp_health = await mcp_client.health_check()
+    
     return {
         "status": "healthy",
         "timestamp": datetime.now(),
@@ -353,9 +367,86 @@ async def health_check():
         "components": {
             "agent_manager": "operational",
             "database": "operational",
-            "scenarios": "operational"
+            "scenarios": "operational",
+            "mcp_server": "operational" if mcp_health else "unhealthy"
         }
     }
+
+@app.get("/api/mcp/status", response_model=MCPServerStatus)
+async def get_mcp_status(
+    client: PlaywrightMCPClient = Depends(get_mcp_client)
+):
+    """Get MCP server status"""
+    
+    server_info = client.get_server_info()
+    health_status = await client.health_check()
+    
+    return MCPServerStatus(
+        is_running=server_info["is_running"],
+        port=3001,  # Default MCP port
+        process_id=server_info["process_id"],
+        config_path=server_info["config_path"],
+        health_status="healthy" if health_status else "unhealthy"
+    )
+
+@app.post("/api/mcp/start")
+async def start_mcp_server(
+    client: PlaywrightMCPClient = Depends(get_mcp_client)
+):
+    """Start MCP server"""
+    
+    try:
+        success = await client.start_server(port=3001, headless=True)
+        
+        if success:
+            return {
+                "message": "MCP server started successfully",
+                "status": "running",
+                "port": 3001
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to start MCP server")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error starting MCP server: {str(e)}")
+
+@app.post("/api/mcp/stop")
+async def stop_mcp_server(
+    client: PlaywrightMCPClient = Depends(get_mcp_client)
+):
+    """Stop MCP server"""
+    
+    try:
+        await client.stop_server()
+        
+        return {
+            "message": "MCP server stopped successfully",
+            "status": "stopped"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error stopping MCP server: {str(e)}")
+
+@app.post("/api/mcp/restart")
+async def restart_mcp_server(
+    client: PlaywrightMCPClient = Depends(get_mcp_client)
+):
+    """Restart MCP server"""
+    
+    try:
+        success = await client.restart_server(port=3001, headless=True)
+        
+        if success:
+            return {
+                "message": "MCP server restarted successfully",
+                "status": "running",
+                "port": 3001
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to restart MCP server")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error restarting MCP server: {str(e)}")
 
 # WebSocket endpoint for real-time updates
 @app.websocket("/ws")
@@ -379,13 +470,20 @@ async def websocket_endpoint(websocket: WebSocket):
             # Get current metrics
             queue_status = agent_manager.get_queue_status()
             
+            # Get MCP server status
+            mcp_health = await mcp_client.health_check()
+            
             status_update = {
                 "type": "status_update",
                 "data": {
                     "queue_status": queue_status,
                     "active_tasks": len(agent_manager.active_agents),
                     "pending_tasks": len(agent_manager.task_queue),
-                    "completed_tasks": len(agent_manager.completed_tasks)
+                    "completed_tasks": len(agent_manager.completed_tasks),
+                    "mcp_server": {
+                        "status": "healthy" if mcp_health else "unhealthy",
+                        "is_running": mcp_client.is_running
+                    }
                 },
                 "timestamp": datetime.now().isoformat()
             }
@@ -406,11 +504,30 @@ async def websocket_endpoint(websocket: WebSocket):
 async def startup_event():
     print("🚀 AI Agents Testing API started")
     print(f"📊 Agent Manager initialized with {agent_manager.max_concurrent_agents} max concurrent agents")
+    print(f"🤖 MCP Client initialized")
+    
+    # Start MCP server automatically
+    try:
+        print("🚀 Starting MCP server...")
+        success = await mcp_client.start_server(port=3001, headless=True)
+        if success:
+            print("✅ MCP server started successfully")
+        else:
+            print("⚠️ MCP server failed to start - will retry on demand")
+    except Exception as e:
+        print(f"⚠️ Error starting MCP server: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_event():
     print("🛑 Shutting down AI Agents Testing API")
     database.close()
+    
+    # Stop MCP server
+    try:
+        await mcp_client.stop_server()
+        print("✅ MCP server stopped")
+    except Exception as e:
+        print(f"⚠️ Error stopping MCP server: {e}")
 
 if __name__ == "__main__":
     import uvicorn

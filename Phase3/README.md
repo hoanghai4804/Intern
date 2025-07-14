@@ -6,6 +6,93 @@ Một nền tảng tự động hóa kiểm thử web sử dụng AI Agents vớ
 
 Dự án này kết hợp công nghệ AI (Claude, GPT) với browser automation (Playwright + Browser Use) để tạo ra một hệ thống kiểm thử web thông minh. AI agents có thể hiểu yêu cầu test bằng ngôn ngữ tự nhiên và thực hiện các hành động phức tạp trên website thông qua Browser Use - một thư viện AI-powered browser automation.
 
+## ⚠️ Windows Compatibility & WSL Setup
+
+### Vấn đề với Playwright trên Windows
+
+**NotImplementedError** là lỗi thường gặp khi chạy Playwright và Browser Use trên Windows. Nguyên nhân chính:
+
+1. **Platform Dependencies**: Playwright và Browser Use có một số dependencies không được implement đầy đủ trên Windows
+2. **Browser Process Management**: Windows có cách quản lý process khác với Unix-based systems
+3. **Display Server**: Browser automation cần X server hoặc display server tương tự
+4. **File System Permissions**: Windows có cơ chế permission khác với Linux
+
+### Giải pháp: Sử dụng WSL (Windows Subsystem for Linux)
+
+**WSL là giải pháp được khuyến nghị** để chạy project này trên Windows:
+
+#### Lợi ích của WSL:
+- ✅ **Full Linux Environment**: Chạy trong môi trường Linux hoàn chỉnh
+- ✅ **Native Browser Support**: Playwright hoạt động tự nhiên như trên Linux
+- ✅ **Better Performance**: Ít overhead hơn so với VM
+- ✅ **Seamless Integration**: Tích hợp tốt với Windows file system
+
+#### Setup WSL Environment:
+
+**Bước 1: Cài đặt WSL**
+```bash
+# Mở PowerShell với quyền Administrator
+wsl --install
+# Restart máy tính sau khi cài đặt
+```
+
+**Bước 2: Setup Project trong WSL**
+```bash
+# Mở WSL terminal
+wsl
+
+# Navigate to project directory
+cd /mnt/c/Users/Admin/Desktop/Code\ stage/MCP\&AIAgent/Intern/Phase3
+
+# Chạy setup script
+chmod +x setup_wsl_environment.sh
+./setup_wsl_environment.sh
+```
+
+**Bước 3: Test WSL Setup**
+```bash
+# Test environment
+python test_wsl_setup.py
+```
+
+#### Sử dụng Project trong WSL:
+
+```bash
+# Mở WSL
+wsl
+
+# Navigate to project
+cd /mnt/c/Users/Admin/Desktop/Code\ stage/MCP\&AIAgent/Intern/Phase3
+
+# Activate virtual environment
+source wsl-env/bin/activate
+
+# Chạy backend
+python backend/run_server.py
+```
+
+#### Troubleshooting WSL:
+
+**Nếu gặp lỗi permission:**
+```bash
+# Fix file permissions
+chmod -R 755 .
+```
+
+**Nếu browser không launch:**
+```bash
+# Install additional dependencies
+sudo apt update
+sudo apt install -y xvfb
+```
+
+**Nếu gặp lỗi network:**
+```bash
+# Check WSL network
+ip addr show
+```
+
+
 ## 🏗️ Kiến trúc Hệ thống
 
 ```
@@ -31,35 +118,45 @@ Dự án này kết hợp công nghệ AI (Claude, GPT) với browser automation
 
 ## ✨ Tính năng Đã Hoàn thành
 
-### 🎯 Core Features
+### 🔧 Backend Features (Hoàn thành)
 - **🤖 AI Agent System**: Hệ thống AI agents có thể hiểu và thực hiện test cases
 - **🌐 Browser Automation**: Tự động điều khiển browser với Playwright
-- **📊 Real-time Dashboard**: Dashboard theo dõi real-time quá trình test
+- **📊 Test Engine**: Engine xử lý và thực thi test cases
 - **📈 Test Results Management**: Quản lý và phân tích kết quả test
-- **🔌 WebSocket Integration**: Kết nối real-time giữa frontend và backend
+- **🔌 WebSocket Server**: Kết nối real-time với frontend
+- **🗄️ Database Integration**: SQLAlchemy ORM với SQLite/PostgreSQL
+- **🔐 API Endpoints**: RESTful API với FastAPI
+- **📝 Logging System**: Hệ thống logging chi tiết
+- **⚙️ Configuration Management**: Quản lý cấu hình linh hoạt
 
-### 🧪 Testing Capabilities
+### 🧪 Testing Capabilities (Backend)
 - **Functional Testing**: Test các chức năng cơ bản của website
 - **UI Testing**: Kiểm tra giao diện người dùng
 - **Cross-browser Testing**: Test trên nhiều browser khác nhau
 - **Responsive Testing**: Kiểm tra responsive design
 - **Performance Testing**: Đo lường hiệu suất website
 - **Form Testing**: Test các form và validation
+- **Screenshot Capture**: Tự động chụp màn hình
+- **Error Handling**: Xử lý lỗi thông minh
 
-### 🎨 User Interface
-- **Modern React UI**: Giao diện hiện đại với Material-UI
-- **Dark Theme**: Giao diện tối với theme tùy chỉnh
-- **Responsive Design**: Tương thích với mọi thiết bị
-- **Real-time Updates**: Cập nhật real-time qua WebSocket
-- **Interactive Components**: Components tương tác cao
+### 🎨 Frontend Features (Đang hoàn thiện)
+- **📱 Modern React UI**: Giao diện hiện đại với Material-UI ⚠️ Đang phát triển
+- **🌙 Dark Theme**: Giao diện tối với theme tùy chỉnh ⚠️ Đang hoàn thiện
+- **📱 Responsive Design**: Tương thích với mọi thiết bị ⚠️ Đang làm
+- **⚡ Real-time Updates**: Cập nhật real-time qua WebSocket ✅ Hoàn thành
+- **🎮 Interactive Components**: Components tương tác cao ⚠️ Đang phát triển
+- **📊 Dashboard**: Hiển thị thông tin test và kết quả ⚠️ Đang làm
+- **🏃‍♂️ Test Runner**: Giao diện chạy test ⚠️ Đang hoàn thiện
+- **📋 Results Viewer**: Xem kết quả test chi tiết ⚠️ Đang phát triển
+- **📈 Reports**: Báo cáo và phân tích kết quả ⚠️ Chưa bắt đầu
 
 ### 🔧 Technical Stack
 - **Frontend**: React 18, TypeScript, Material-UI, Axios
 - **Backend**: FastAPI, Python, SQLAlchemy, WebSocket
 - **AI**: Anthropic Claude, OpenAI GPT
 - **Browser Automation**: Playwright + Browser Use (AI-powered)
-- **Database**: SQLite (development), PostgreSQL ready
-- **Deployment**: Docker ready
+- **Database**: SQLite (development), PostgreSQL (chưa hoàn thiện)
+
 
 ## 🚀 Cài đặt và Chạy
 

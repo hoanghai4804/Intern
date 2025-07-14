@@ -134,11 +134,28 @@ export class AdvancedAgentService {
    */
   async getCompletedTasks(limit: number = 20): Promise<TaskStatus[]> {
     try {
-      const response = await api.get<TaskStatus[]>(`/api/tasks/completed?limit=${limit}`);
+      // Add timestamp to prevent caching
+      const timestamp = Date.now();
+      const response = await api.get<TaskStatus[]>(`/api/tasks/completed?limit=${limit}&_t=${timestamp}`);
       return response;
     } catch (error) {
       console.error('❌ Failed to get completed tasks:', error);
       throw new Error(`Failed to get completed tasks: ${error}`);
+    }
+  }
+
+  /**
+   * Get all completed tasks from database
+   */
+  async getAllCompletedTasks(): Promise<TaskStatus[]> {
+    try {
+      // Add timestamp to prevent caching
+      const timestamp = Date.now();
+      const response = await api.get<TaskStatus[]>(`/api/tasks/completed?limit=9999&_t=${timestamp}`);
+      return response;
+    } catch (error) {
+      console.error('❌ Failed to get all completed tasks:', error);
+      throw new Error(`Failed to get all completed tasks: ${error}`);
     }
   }
 

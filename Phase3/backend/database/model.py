@@ -139,8 +139,14 @@ class TestResultRepository:
                 execution.status = status
                 if completed_at:
                     execution.completed_at = completed_at
-                if execution_time:
+                
+                # Fix execution time calculation
+                if execution_time is not None:
                     execution.execution_time = execution_time
+                elif completed_at and execution.started_at:
+                    # Calculate execution time correctly
+                    execution.execution_time = (completed_at - execution.started_at).total_seconds()
+                
                 if error_message:
                     execution.error_message = error_message
                 
@@ -179,6 +185,13 @@ class TestResultRepository:
             return session.query(TestExecution).order_by(
                 TestExecution.started_at.desc()
             ).limit(limit).all()
+    
+    def get_all_executions(self) -> list:
+        """Get all executions from database (no limit)"""
+        with self.db.get_session() as session:
+            return session.query(TestExecution).order_by(
+                TestExecution.started_at.desc()
+            ).all()
     
     def get_test_metrics(self, days: int = 30) -> dict:
         with self.db.get_session() as session:

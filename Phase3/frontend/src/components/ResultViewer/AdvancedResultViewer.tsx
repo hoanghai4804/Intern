@@ -110,7 +110,7 @@ const AdvancedResultViewer: React.FC = () => {
   const loadTasks = async () => {
     try {
       setIsLoading(true);
-      const completedTasks = await advancedAgentService.getCompletedTasks(100);
+      const completedTasks = await advancedAgentService.getAllCompletedTasks(); // Sử dụng method mới để lấy tất cả task
       setTasks(completedTasks);
     } catch (error) {
       console.error('Failed to load tasks:', error);
@@ -577,7 +577,7 @@ const AdvancedResultViewer: React.FC = () => {
                       
                       <TableCell>
                         <Typography variant="body2">
-                          {advancedAgentService.formatExecutionTime(task.execution_time)}
+                          {task.execution_time ? advancedAgentService.formatExecutionTime(task.execution_time) : 'N/A'}
                         </Typography>
                       </TableCell>
                       
@@ -605,7 +605,7 @@ const AdvancedResultViewer: React.FC = () => {
         </TableContainer>
         
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 50]}
+          rowsPerPageOptions={[10, 25, 50, 100, 200]}
           component="div"
           count={filteredTasks.length}
           rowsPerPage={rowsPerPage}
@@ -613,6 +613,15 @@ const AdvancedResultViewer: React.FC = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
+        
+        {/* Summary Info */}
+        <Box sx={{ p: 2, bgcolor: 'grey.50', borderTop: 1, borderColor: 'divider' }}>
+          <Typography variant="body2" color="text.secondary">
+            Showing {filteredTasks.length} of {tasks.length} total tasks
+            {searchTerm && ` (filtered by "${searchTerm}")`}
+            {statusFilter !== 'all' && ` (filtered by status: ${statusFilter})`}
+          </Typography>
+        </Box>
       </Card>
 
       {renderDetailDialog()}
