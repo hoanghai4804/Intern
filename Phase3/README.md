@@ -1,12 +1,12 @@
-# 🤖 AI Agent Testing Platform
+# AI Agent Testing Platform
 
 Một nền tảng tự động hóa kiểm thử web sử dụng AI Agents với khả năng thực hiện các test case phức tạp thông qua browser automation.
 
-## 📋 Tổng quan
+## Tổng quan
 
 Dự án này kết hợp công nghệ AI (Claude, GPT) với browser automation (Playwright + Browser Use) để tạo ra một hệ thống kiểm thử web thông minh. AI agents có thể hiểu yêu cầu test bằng ngôn ngữ tự nhiên và thực hiện các hành động phức tạp trên website thông qua Browser Use - một thư viện AI-powered browser automation.
 
-## ⚠️ Windows Compatibility & WSL Setup
+##  Windows Compatibility & WSL Setup
 
 ### Vấn đề với Playwright trên Windows
 
@@ -22,10 +22,10 @@ Dự án này kết hợp công nghệ AI (Claude, GPT) với browser automation
 **WSL là giải pháp được khuyến nghị** để chạy project này trên Windows:
 
 #### Lợi ích của WSL:
-- ✅ **Full Linux Environment**: Chạy trong môi trường Linux hoàn chỉnh
-- ✅ **Native Browser Support**: Playwright hoạt động tự nhiên như trên Linux
-- ✅ **Better Performance**: Ít overhead hơn so với VM
-- ✅ **Seamless Integration**: Tích hợp tốt với Windows file system
+-  **Full Linux Environment**: Chạy trong môi trường Linux hoàn chỉnh
+-  **Native Browser Support**: Playwright hoạt động tự nhiên như trên Linux
+-  **Better Performance**: Ít overhead hơn so với VM
+-  **Seamless Integration**: Tích hợp tốt với Windows file system
 
 #### Setup WSL Environment:
 
@@ -93,7 +93,7 @@ ip addr show
 ```
 
 
-## 🏗️ Kiến trúc Hệ thống
+## Kiến trúc Hệ thống
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -116,20 +116,20 @@ ip addr show
                        └─────────────────┘
 ```
 
-## ✨ Tính năng Đã Hoàn thành
+## Tính năng Đã Hoàn thành
 
 ### 🔧 Backend Features (Hoàn thành)
-- **🤖 AI Agent System**: Hệ thống AI agents có thể hiểu và thực hiện test cases
-- **🌐 Browser Automation**: Tự động điều khiển browser với Playwright
-- **📊 Test Engine**: Engine xử lý và thực thi test cases
-- **📈 Test Results Management**: Quản lý và phân tích kết quả test
-- **🔌 WebSocket Server**: Kết nối real-time với frontend
-- **🗄️ Database Integration**: SQLAlchemy ORM với SQLite/PostgreSQL
-- **🔐 API Endpoints**: RESTful API với FastAPI
-- **📝 Logging System**: Hệ thống logging chi tiết
-- **⚙️ Configuration Management**: Quản lý cấu hình linh hoạt
+- ** AI Agent System**: Hệ thống AI agents có thể hiểu và thực hiện test cases
+- ** Browser Automation**: Tự động điều khiển browser với Playwright
+- ** Test Engine**: Engine xử lý và thực thi test cases
+- ** Test Results Management**: Quản lý và phân tích kết quả test
+- ** WebSocket Server**: Kết nối real-time với frontend
+- ** Database Integration**: SQLAlchemy ORM với SQLite/PostgreSQL
+- ** API Endpoints**: RESTful API với FastAPI
+- ** Logging System**: Hệ thống logging chi tiết
+- ** Configuration Management**: Quản lý cấu hình linh hoạt
 
-### 🧪 Testing Capabilities (Backend)
+###  Testing Capabilities (Backend)
 - **Functional Testing**: Test các chức năng cơ bản của website
 - **UI Testing**: Kiểm tra giao diện người dùng
 - **Cross-browser Testing**: Test trên nhiều browser khác nhau
@@ -139,18 +139,18 @@ ip addr show
 - **Screenshot Capture**: Tự động chụp màn hình
 - **Error Handling**: Xử lý lỗi thông minh
 
-### 🎨 Frontend Features (Đang hoàn thiện)
-- **📱 Modern React UI**: Giao diện hiện đại với Material-UI ⚠️ Đang phát triển
-- **🌙 Dark Theme**: Giao diện tối với theme tùy chỉnh ⚠️ Đang hoàn thiện
-- **📱 Responsive Design**: Tương thích với mọi thiết bị ⚠️ Đang làm
-- **⚡ Real-time Updates**: Cập nhật real-time qua WebSocket ✅ Hoàn thành
-- **🎮 Interactive Components**: Components tương tác cao ⚠️ Đang phát triển
-- **📊 Dashboard**: Hiển thị thông tin test và kết quả ⚠️ Đang làm
-- **🏃‍♂️ Test Runner**: Giao diện chạy test ⚠️ Đang hoàn thiện
-- **📋 Results Viewer**: Xem kết quả test chi tiết ⚠️ Đang phát triển
-- **📈 Reports**: Báo cáo và phân tích kết quả ⚠️ Chưa bắt đầu
+###  Frontend Features (Đang hoàn thiện)
+- ** Modern React UI**: Giao diện hiện đại với Material-UI ⚠️ Đang phát triển
+- ** Dark Theme**: Giao diện tối với theme tùy chỉnh ⚠️ Đang hoàn thiện
+- ** Responsive Design**: Tương thích với mọi thiết bị ⚠️ Đang làm
+- ** Real-time Updates**: Cập nhật real-time qua WebSocket ✅ Hoàn thành
+- ** Interactive Components**: Components tương tác cao ⚠️ Đang phát triển
+- ** Dashboard**: Hiển thị thông tin test và kết quả ⚠️ Đang làm
+- ** Test Runner**: Giao diện chạy test ⚠️ Đang hoàn thiện
+- ** Results Viewer**: Xem kết quả test chi tiết ⚠️ Đang phát triển
+- ** Reports**: Báo cáo và phân tích kết quả ⚠️ Chưa bắt đầu
 
-### 🔧 Technical Stack
+###  Technical Stack
 - **Frontend**: React 18, TypeScript, Material-UI, Axios
 - **Backend**: FastAPI, Python, SQLAlchemy, WebSocket
 - **AI**: Anthropic Claude, OpenAI GPT
@@ -158,7 +158,7 @@ ip addr show
 - **Database**: SQLite (development), PostgreSQL (chưa hoàn thiện)
 
 
-## 🚀 Cài đặt và Chạy
+##  Cài đặt và Chạy
 
 ### Yêu cầu hệ thống
 - Python 3.11+
@@ -244,7 +244,7 @@ AI-Agent-automation-tests-web/
 └── 📁 docs/                   # Documentation
 ```
 
-## 🎯 Cách Sử dụng
+## Cách Sử dụng
 
 ### 1. Tạo Test Case
 1. Mở ứng dụng và đi đến "Test Runner"
@@ -268,15 +268,15 @@ AI-Agent-automation-tests-web/
 - Phân tích performance
 - Export báo cáo
 
-## 🔍 Tính năng Chi tiết
+##  Tính năng Chi tiết
 
-### 🤖 AI Agent System
+###  AI Agent System
 - **Base Agent**: Agent cơ bản với khả năng xử lý task
 - **Test Agent**: Agent chuyên về testing
 - **Enhanced Agent**: Agent nâng cao với nhiều tính năng
 - **Agent Manager**: Quản lý và điều phối các agents
 
-### 🌐 Browser Automation
+###  Browser Automation
 - **Playwright Integration**: Sử dụng Playwright cho browser control cơ bản
 - **Browser Use**: AI-powered browser automation cho các tác vụ phức tạp
 - **Natural Language Commands**: Điều khiển browser bằng ngôn ngữ tự nhiên
@@ -292,14 +292,14 @@ Browser Use là thư viện AI-powered browser automation cho phép:
 - **Intelligent Navigation**: Tìm và tương tác với elements một cách thông minh
 - **Error Recovery**: Tự động xử lý lỗi và thử lại với cách khác
 
-### 🔌 Real-time Features
+###  Real-time Features
 - **WebSocket Connection**: Kết nối real-time
 - **Live Updates**: Cập nhật trạng thái live
 - **Progress Tracking**: Theo dõi tiến độ test
 - **Status Monitoring**: Giám sát trạng thái agents
 
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - [Anthropic](https://www.anthropic.com/) - Claude AI
 - [OpenAI](https://openai.com/) - GPT Models
